@@ -1,0 +1,139 @@
+-Começar Abrindo um diretorio com node.js
+
+2 - comando $ npm init -y 
+para criar um package.json
+
+3 - $npm install express
+
+4- $ npm install commonjs
+
+5 - $ npm install ejs body-parser
+
+6 - $ npm install nodemon -D  =para dependencia de produção
+
+7 - Criar um app.js
+
+8 - Dentro do app.js fazer um require
+    const express = require('express')
+    const app = express
+
+9 - Criar a view
+    app.set('view engine' 'ejs')
+
+10 - criar um servidor no node utilizando o listen.
+    app.listen(3333)
+
+11 - Rodar usando o comando nodemon app
+    Obs. Senão funcionar o comando utilizar o comando  $(npm install nodemon -g) para reinstalalo no windows.
+
+12 - criar uma pasta 'src' e dentro dela criar a pasta chama 'views'
+
+13 - Dentro da Pasta criar um arquivo index.ejs
+
+14 - comolacar um app.set
+    app.set('views', './src/views')
+
+15 - criar uma rota de visualização com uma função anonima.
+    app.get('/', (req,res)=>{
+        res.render('index')
+    })
+
+16 - Para enviar os dados do formulario teremos usar o body parser
+    const bodyParser = require('body-parser')
+
+17 - Configurar o body-parser
+    app.use(bodyParser.json())
+18 - criar um obejeto chamado extend:true
+    app.use(bodyParser.urlencoded({extended:true}))
+    Senão colocar essa configuação o não consegue pegar vai dar undifined
+
+19 - Mudar p debug no package.json para 
+    debug
+     "scripts": {
+    "start": "nodemon ./app.js"}
+
+20 - Criar a rota Post e nomeala
+    app.post('/envia-cep',(req,res)=>{
+    pegar o dado que é enviada no formulario
+        const{cep}=req.body
+
+        testar se ta recebendo dado
+        console.log(cep)
+        so pra não recarregar infinitamente
+        res.render('index')
+})
+
+21 - Passar a rota no form action no index.ejs
+    <form action="/envia-cep" method="POST">
+
+22 - fazer o text enviando um dado e vera se apareceu no terminal
+
+23 - retirar o console.log e no lugar colocar uma função para receber os dados e fazer a manipulação dos mesmos.
+
+24 - No src criar uma pasta chamada funtions
+e criar um file com nome buscaCep.js para fazer a requisição
+e nele colocar uma function
+
+    function buscaCep(cep){
+        criar uma const que vai receber o fetch colocar com crases e colar a url tirar a os numeros que estão la e colocar ${cep}
+        const response=fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    }
+
+
+25 - Instalar o node-fetch para o fetch funcionar
+    $npm install node-fetch
+
+26 - chamar o fetch no inicio function da pagina com o 
+    const fetch = require('node-fetch')
+
+27 - fetch é uma promessa precisa criar uma função assincrona
+ai na function buscaCep vc Mudar para  
+    async funcition buscaCep(cep){
+        const response=await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        acrescentar 
+        const json = await response.json()
+        depopis da um retorn com a variavel json criada
+        return json
+    }
+        eportar a função agora
+        module.exports = buscaCep()
+
+28 - na pagina app.js recupera a função
+    const buscaCep = require('./src/funtions/buscaCep')
+
+    ---/ cumpriu o criterio commonjs /--
+
+29 - criar uma const chamada resultado no app.Post para colocar o resultado da função dentro desta const.
+    const resultado = buscaCep(cep)
+
+30 - criar uma nova pagina.js chamada de resultado.ejs na pasta views
+
+31 - colocar o console.log  abaixo 
+    const resultado = buscaCep(cep)
+    console.log(resultado)
+
+    res.render('resultado')
+})
+
+32 - transformar a função em asincrona e colocar await 
+    app.post('/envia-cep',(req,res)=>{ 
+    const{cep}=req.body
+    const resultado = buscaCep(cep)
+ 
+    app.post('/envia-cep',async(req,res)=>{ 
+    const{cep}=req.body
+    const resultado = await buscaCep(cep)
+
+33- Tirar o console.log
+
+34 - Transformar o dado em obejeto
+    app.post('/envia-cep',async(req,res)=>{ 
+    const{cep}=req.body
+    const resultado = await buscaCep(cep)
+
+    res.render('resultado', {dado:resultado})
+
+35 - Colocar no resultado.ejs  e retornara os dodos inteiro
+    <strong><%=dado.logradouro%></strong>
+    <strong><%=dado.colalidade%>, </strong>
+    <strong><%=dado.bairro%>, </strong>
